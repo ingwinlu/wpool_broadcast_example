@@ -2,7 +2,7 @@
 -behaviour(gen_server).
 
 %% API.
--export([start_link/0, bump/1]).
+-export([start_pool/0, bump/0, bump/1]).
 %% gen_server.
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
@@ -13,8 +13,16 @@
 
 %% API.
 
-start_link() ->
-    gen_server:start_link(?MODULE, [], []).
+start_pool() ->
+    wpool:start_pool(
+      ?MODULE, [
+                {workers, 10},
+                {worker, {?MODULE, []}}
+               ]
+    ).
+
+bump() ->
+    wpool:cast(?MODULE, bump).
 
 bump(Pid) ->
     gen_server:cast(Pid, bump).
